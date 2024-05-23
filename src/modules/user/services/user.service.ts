@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import admin from 'firebase-admin';
 import { REQUEST } from '@nestjs/core';
-import { CreateUserProfileDto } from './dtos/create-user-profile.dto';
+import { CreateUserProfileDto } from '../dtos/create-user-profile.dto';
 // import DocumentSnapshot = firestore.DocumentSnapshot;
 // import QuerySnapshot = firestore.QuerySnapshot;
 
