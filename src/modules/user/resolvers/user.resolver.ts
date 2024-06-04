@@ -1,86 +1,44 @@
 import { Resolver, Mutation, Args, Query } from '@nestjs/graphql';
-import { AuthGuard } from '@nestjs/passport';
-import { CreateUserProfileDto } from '../dtos/create-user-profile.dto';
+import { CreateUserProfileInput } from '../input/create-user-profile.input';
 import { UserService } from '../services/user.service';
-import { Headers, Body, UnauthorizedException } from '@nestjs/common';
-import { UserProfileDto } from '../dtos/user-profile.dto';
+import { UseGuards } from '@nestjs/common';
+import { User, UserProfile } from '../entity/user.entity';
+import { GqlAuthGuard } from '../../auth/guards/gql-auth.guard';
+import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 
+@UseGuards(GqlAuthGuard)
 @Resolver()
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
-  @Query(String)
-  async author() {
-    return 'hello world';
+  @Mutation(() => UserProfile)
+  async createProfile(
+    @CurrentUser() user: any,
+    @Args('input') input: CreateUserProfileInput,
+  ) {
+    return this.userService.createProfile(user.uid, input);
   }
 
-  // @Mutation(() => UserProfileDto)
-  // async createProfile(
-  //   @Headers('authorization') authHeader: string,
-  //   @Body() createUserProfileDto: CreateUserProfileDto,
-  // ): Promise<any> {
-  //   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-  //     throw new UnauthorizedException('No bearer token found');
-  //   }
+  @Query(() => UserProfile)
+  async getProfile(@Args('id') id: string) {
+    return this.userService.getProfile(id);
+  }
 
-  //   const token = authHeader.substring(7);
+  @Query(() => [User])
+  async getUsers() {
+    return this.userService.getUsers();
+  }
 
-  //   return this.userService.createProfile(token, createUserProfileDto);
-  // }
+  @Mutation(() => UserProfile)
+  async editProfile(
+    @CurrentUser() user: any,
+    @Args('input') input: CreateUserProfileInput,
+  ) {
+    return this.userService.editProfile(user.uid, input);
+  }
 
-  // @Query()
+  @Mutation(() => String)
+  async deleteUser(@CurrentUser() user: any) {
+    return this.userService.deleteUser(user.uid);
+  }
 }
-
-// @UseGuards(AuthGuard())
-// @Controller('user')
-// export class UserResolver {
-//   constructor(private readonly userService: UserService) {}
-
-//   @Post()
-//   @HttpCode(HttpStatus.CREATED)
-//   createProfile(
-//     @Headers('authorization') authHeader: string,
-//     @Body() createUserProfileDto: CreateUserProfileDto,
-//   ) {
-//     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-//       throw new UnauthorizedException('No bearer token found');
-//     }
-
-//     const token = authHeader.substring(7);
-
-//     return this.userService.createProfile(token, createUserProfileDto);
-//   }
-
-//   @Get(':id')
-//   @HttpCode(HttpStatus.OK)
-//   getProfile(@Param('id') id: string) {
-//     return this.userService.getProfile(id);
-//   }
-
-//   @Put()
-//   @HttpCode(HttpStatus.OK)
-//   editProfile(
-//     @Headers('authorization') authHeader: string,
-//     @Body() createUserProfileDto: CreateUserProfileDto,
-//   ) {
-//     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-//       throw new UnauthorizedException('No bearer token found');
-//     }
-
-//     const token = authHeader.substring(7);
-
-//     return this.userService.editProfile(token, createUserProfileDto);
-//   }
-
-//   @Delete()
-//   @HttpCode(HttpStatus.OK)
-//   deleteUser(@Headers('authorization') authHeader: string) {
-//     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-//       throw new UnauthorizedException('No bearer token found');
-//     }
-
-//     const token = authHeader.substring(7);
-
-//     return this.userService.deleteUser(token);
-//   }
-// }

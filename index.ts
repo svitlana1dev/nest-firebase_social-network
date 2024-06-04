@@ -33,7 +33,7 @@ const createFunction = async (expressInstance): Promise<void> => {
   await app.init();
 };
 
-export const api = functions.https.onRequest(
+export const graphql = functions.https.onRequest(
   {
     minInstances: 0,
     maxInstances: 10,
@@ -50,3 +50,5 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccountKey as ServiceAccount),
   databaseURL: process.env.FB_DATABASE_URL,
 });
+
+admin.firestore().settings({ ignoreUndefinedProperties: true });

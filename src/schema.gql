@@ -1,0 +1,109 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Post {
+  id: ID!
+  title: String!
+  description: String!
+  authorUid: String!
+  authorName: String!
+  authorPhoto: String
+  like: [ID!]
+  dislike: [ID!]
+  photoURL: String
+  createdAt: DateTime!
+  updatedAt: DateTime
+  commentsCount: Float
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Posts {
+  posts: [Post]
+}
+
+type User {
+  uid: String!
+  displayName: String!
+  photoURL: String
+}
+
+type UserProfile {
+  id: ID!
+  firstName: String!
+  photoURL: String
+  secondName: String
+  bio: String
+  posts: [Post!]
+}
+
+type Comment {
+  id: String!
+  authorUid: String!
+  authorName: String
+  authorPhoto: String
+  content: String!
+  commentId: String!
+  postId: String!
+  createdAt: DateTime!
+  updatedAt: DateTime
+  answersCount: Float
+  allAnswers: [Comment!]
+}
+
+type Query {
+  hello: String!
+  getProfile(id: String!): UserProfile!
+  getUsers: [User!]!
+  getPostById(postId: String!): Post!
+  getAllPosts(input: PaginationPostInput!): Posts!
+  getComments(postId: String!): [Comment!]!
+}
+
+input PaginationPostInput {
+  querySearch: String
+  limit: Float
+  offset: Float
+}
+
+type Mutation {
+  createProfile(input: CreateUserProfileInput!): UserProfile!
+  editProfile(input: CreateUserProfileInput!): UserProfile!
+  deleteUser: String!
+  createPost(input: CreatePostInput!): Post!
+  editPost(input: EditPostInput!): Post!
+  deletePost(postId: String!): Post!
+  likedPost(postId: String!): ID!
+  dislikedPost(postId: String!): ID!
+  addComment(input: CommentInput!): Comment!
+  deleteComment(commentId: String!): String!
+  editComment(postInput: CommentInput!): String!
+  replyToComment(postInput: CommentInput!): Comment!
+}
+
+input CreateUserProfileInput {
+  id: ID
+  secondName: String
+  bio: String
+}
+
+input CreatePostInput {
+  title: String!
+  description: String!
+}
+
+input EditPostInput {
+  id: ID!
+  title: String!
+  description: String!
+}
+
+input CommentInput {
+  postId: String
+  commentId: String
+  content: String!
+}

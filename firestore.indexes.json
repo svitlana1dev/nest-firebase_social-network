@@ -1,0 +1,21 @@
+{
+    "indexes": [
+      {
+        "collectionId": "users",
+        "queryScope": "COLLECTION",
+        "fields": [
+          { "fieldPath": "firstName", "order": "ASCENDING" },
+          { "fieldPath": "secondName", "order": "ASCENDING" }
+        ]
+      },
+      {
+        "collectionGroup": "posts",
+        "queryScope": "COLLECTION_GROUP",
+        "fields": [
+          { "fieldPath": "id", "order": "ASCENDING" },
+          { "fieldPath": "authorName", "order": "ASCENDING" }
+        ]
+      }
+    ],
+    "fieldOverrides": []
+  }

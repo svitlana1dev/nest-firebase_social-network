@@ -1,107 +1,144 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import admin from 'firebase-admin';
-import { REQUEST } from '@nestjs/core';
-import { CreateUserProfileDto } from '../dtos/create-user-profile.dto';
-// import DocumentSnapshot = firestore.DocumentSnapshot;
-// import QuerySnapshot = firestore.QuerySnapshot;
+import { CreateUserProfileInput } from '../input/create-user-profile.input';
+import { formatDate } from '../../../utils/formate-date.utils';
+import { countDocumentsInCollection } from '../../../utils/count-doc-collection.utils';
 
 @Injectable()
 export class UserService {
   private db: any;
+  private collectionRef: any;
 
-  constructor(@Inject(REQUEST) private readonly request: { user: any }) {
+  constructor() {
     this.db = admin.firestore();
+    this.collectionRef = this.db.collection('users');
   }
 
   async createProfile(
-    token: string,
-    createUserProfileDto: CreateUserProfileDto,
+    uid: string,
+    createUserProfileInput: CreateUserProfileInput,
   ) {
-    const decodedToken = await admin.auth().verifyIdToken(token);
-    const collectionRef = this.db.collection('users');
-    const doc = await collectionRef.doc(decodedToken.uid).get();
+    const doc = await this.collectionRef.doc(uid).get();
 
     if (doc.exists) {
       throw new HttpException('User already exists', HttpStatus.CONFLICT);
     }
 
     try {
-      await collectionRef.doc(decodedToken.uid).set(createUserProfileDto);
+      await this.collectionRef.doc(uid).set(createUserProfileInput);
 
-      const userDoc = await collectionRef.doc(decodedToken.uid).get();
-      const authUser = await admin.auth().getUser(decodedToken.uid);
+      const userDoc = await this.collectionRef.doc(uid).get();
+      const authUser = await admin.auth().getUser(uid);
       const userData = {
+        id: userDoc.id,
         firstName: authUser.displayName,
         photoURL: authUser.photoURL,
         ...userDoc.data(),
       };
+
       return userData;
     } catch (err) {
-      console.error(`User didn't create: ${err}`);
+      throw new HttpException(
+        `User didn't create: ${err}`,
+        HttpStatus.NOT_MODIFIED,
+      );
     }
   }
 
   async getProfile(id: string) {
-    const collectionRef = this.db.collection('users');
-    const doc = await collectionRef.doc(id).get();
+    const doc = await this.collectionRef.doc(id).get();
 
     if (doc.exists) {
       const user = await admin.auth().getUser(id);
+      // not work Ok with can not get in time count of comments
+      const postsRef = await doc.ref.collection('posts').get();
+
+      const posts = [];
+      // await postsRef.forEach(async (post) => {
+      for (const post of postsRef.docs) {
+        const collectionRef = await post.ref.collection('comments');
+        const commentsCount = await countDocumentsInCollection(collectionRef);
+
+        const createdAt = formatDate(post, 'createdAt');
+        const updatedAt = formatDate(post, 'updatedAt');
+
+        posts.push({
+          ...post.data(),
+          commentsCount,
+          createdAt,
+          updatedAt,
+        });
+      }
+      // });
+
       const userData = {
-        // id: doc.id,
+        id: doc.id,
         firstName: user.displayName,
         photoURL: user.photoURL,
         ...doc.data(),
+        posts,
       };
+
       return userData;
     } else {
       throw new HttpException('User does not exist', HttpStatus.NOT_FOUND);
     }
   }
 
-  async editProfile(token: string, createUserProfileDto: CreateUserProfileDto) {
-    const decodedToken = await admin.auth().verifyIdToken(token);
-
+  async editProfile(
+    uid: string,
+    createUserProfileInput: CreateUserProfileInput,
+  ) {
     try {
-      const collectionRef = this.db.collection('users');
-      await collectionRef.doc(decodedToken.uid).update(createUserProfileDto);
+      await this.collectionRef.doc(uid).update(createUserProfileInput);
 
-      const userDoc = await collectionRef.doc(decodedToken.uid).get();
-      const authUser = await admin.auth().getUser(decodedToken.uid);
+      const userDoc = await this.collectionRef.doc(uid).get();
+      const authUser = await admin.auth().getUser(uid);
       const userData = {
+        id: userDoc.id,
         firstName: authUser.displayName,
         photoURL: authUser.photoURL,
         ...userDoc.data(),
       };
+
       return userData;
     } catch (err) {
-      console.error(`User didn't update: ${err}`);
+      throw new HttpException(
+        `User didn't update: ${err}`,
+        HttpStatus.NOT_MODIFIED,
+      );
     }
   }
 
-  async deleteUser(token: string) {
-    const decodedToken = await admin.auth().verifyIdToken(token);
-
+  async deleteUser(uid: string) {
     try {
       const collectionRef = this.db.collection('users');
-      await admin.auth().deleteUser(decodedToken.uid);
-      await collectionRef.doc(decodedToken.uid).delete();
+      await admin.auth().deleteUser(uid);
+      await collectionRef.doc(uid).delete();
 
       return 'Successfully deleted user';
     } catch (err) {
-      console.error(`User didn't delete: ${err}`);
+      throw new HttpException(
+        `User didn't delete: ${err}`,
+        HttpStatus.NOT_MODIFIED,
+      );
     }
   }
 
-  //   async getUsers() {
-  //     let users = [];
+  async getUsers() {
+    try {
+      let users = [];
 
-  //     const listUsersResult = await admin.auth().listUsers();
-  //     users = listUsersResult.users;
-  //     listUsersResult.users.forEach((userRecord) => {
-  //       console.log('User:', userRecord.toJSON());
-  //     });
+      const listUsersResult = await admin.auth().listUsers();
 
-  //     return users;
-  //   }
+      users = listUsersResult.users;
+      listUsersResult.users.forEach((userRecord) => {
+        return userRecord;
+      });
+
+      return users;
+    } catch (err) {
+      throw new HttpException(err, HttpStatus.NOT_FOUND);
+    }
+  }
 }
