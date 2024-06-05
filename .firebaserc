@@ -1,0 +1,9 @@
+{
+  "projects": {
+    "default": "social-network-fbe4f",
+    "staging": "social-network-fbe4f"
+  },
+  "targets": {},
+  "etags": {},
+  "dataconnectEmulatorConfig": {}
+}

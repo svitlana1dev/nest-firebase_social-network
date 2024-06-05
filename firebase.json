@@ -1,0 +1,19 @@
+{
+  "functions": {
+    "source": ".",
+    "predeploy": "npm --prefix \"$RESOURCE_DIR\" run build",
+    "runtime": "nodejs20"
+  },
+  "emulators": {
+    "functions": {
+      "port": 5001
+    },
+    "ui": {
+      "enabled": true
+    },
+    "database": {
+      "port": 9000
+    },
+    "singleProjectMode": true
+  }
+}
