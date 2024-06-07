@@ -7,4 +7,7 @@ export class CreatePostInput {
 
   @Field(() => String)
   description: string;
+
+  @Field(() => String, { nullable: true })
+  photoURL?: string;
 }

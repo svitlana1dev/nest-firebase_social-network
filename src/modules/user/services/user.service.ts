@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import admin from 'firebase-admin';
 import { CreateUserProfileInput } from '../input/create-user-profile.input';
 import { formatDate } from '../../../utils/formate-date.utils';
@@ -50,11 +50,9 @@ export class UserService {
 
     if (doc.exists) {
       const user = await admin.auth().getUser(id);
-      // not work Ok with can not get in time count of comments
       const postsRef = await doc.ref.collection('posts').get();
 
       const posts = [];
-      // await postsRef.forEach(async (post) => {
       for (const post of postsRef.docs) {
         const collectionRef = await post.ref.collection('comments');
         const commentsCount = await countDocumentsInCollection(collectionRef);
@@ -69,7 +67,6 @@ export class UserService {
           updatedAt,
         });
       }
-      // });
 
       const userData = {
         id: doc.id,

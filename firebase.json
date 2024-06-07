@@ -4,6 +4,17 @@
     "predeploy": "npm --prefix \"$RESOURCE_DIR\" run build",
     "runtime": "nodejs20"
   },
+  "headers": [
+    {
+      "source": "**",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    }
+  ],
   "emulators": {
     "functions": {
       "port": 5001

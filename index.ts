@@ -6,6 +6,7 @@ import * as functions from 'firebase-functions/v2';
 import admin, { ServiceAccount } from 'firebase-admin';
 import 'dotenv/config';
 import { AppModule } from './src/app.module';
+// import { graphqlUploadExpress } from 'graphql-upload-ts/dist/graphqlUploadExpress';
 
 const serviceAccountKey = {
   type: process.env.FB_TYPE,
@@ -28,7 +29,17 @@ const createFunction = async (expressInstance): Promise<void> => {
     AppModule,
     new ExpressAdapter(expressInstance),
   );
-  app.enableCors();
+  // app.use(
+  //   graphqlUploadExpress({
+  //     maxFileSize: 10000,
+  //     maxFiles: 10,
+  //     overrideSendResponse: false,
+  //   }),
+  // );
+  app.enableCors({
+    origin: process.env.CLIENT_URL_CORS,
+    credentials: true,
+  });
   app.useGlobalPipes(new ValidationPipe());
   await app.init();
 };
@@ -49,6 +60,7 @@ export const graphql = functions.https.onRequest(
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccountKey as ServiceAccount),
   databaseURL: process.env.FB_DATABASE_URL,
+  // storageBucket: process.env.FB_STORAGE_BUCKET,
 });
 
 admin.firestore().settings({ ignoreUndefinedProperties: true });

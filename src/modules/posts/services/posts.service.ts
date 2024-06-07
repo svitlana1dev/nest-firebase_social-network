@@ -16,6 +16,8 @@ export class PostsService {
   }
 
   async createPost(user: any, postInput: CreatePostInput) {
+    const { title, description, photoURL } = postInput;
+
     const postRef = this.db
       .collection('users')
       .doc(user.uid)
@@ -30,8 +32,11 @@ export class PostsService {
         authorName: user.name,
         createdAt,
         // authorPhoto: user.photoURL,
-        ...postInput,
+        title,
+        description,
+        photoURL: photoURL,
       });
+
       const postDoc = await postRef.get();
       const createdDate = formatDate(postDoc, 'createdAt');
 

@@ -56,7 +56,6 @@ type Comment {
 }
 
 type Query {
-  hello: String!
   getProfile(id: String!): UserProfile!
   getUsers: [User!]!
   getPostById(postId: String!): Post!
@@ -94,6 +93,7 @@ input CreateUserProfileInput {
 input CreatePostInput {
   title: String!
   description: String!
+  photoURL: String
 }
 
 input EditPostInput {

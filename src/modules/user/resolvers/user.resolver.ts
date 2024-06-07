@@ -34,6 +34,7 @@ export class UserResolver {
     @CurrentUser() user: any,
     @Args('input') input: CreateUserProfileInput,
   ) {
+    console.log(user);
     return this.userService.editProfile(user.uid, input);
   }
 
