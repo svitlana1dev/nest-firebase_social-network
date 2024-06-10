@@ -29,7 +29,7 @@ const createFunction = async (expressInstance): Promise<void> => {
     new ExpressAdapter(expressInstance),
   );
   app.enableCors({
-    origin: process.env.CLIENT_URL_CORS,
+    origin: [process.env.CLIENT_URL_CORS, process.env.CLIENT_URL_CORS_2],
     credentials: true,
   });
   app.useGlobalPipes(new ValidationPipe());
