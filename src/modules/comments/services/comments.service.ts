@@ -38,7 +38,7 @@ export class CommentsService {
         authorUid: user.uid,
         authorName: user.name,
         createdAt: this.createdAt,
-        authorPhoto: user?.photoURL,
+        authorPhoto: user?.picture,
         ...input,
       });
       const commentDoc = await commentRef.get();
@@ -165,7 +165,7 @@ export class CommentsService {
         authorUid: user.uid,
         authorName: user.name,
         createdAt: this.createdAt,
-        // authorPhoto: user?.photoURL,
+        authorPhoto: user?.picture,
         ...input,
       });
       const commentDoc = await replyCommentRef.get();

@@ -6,9 +6,7 @@ export const CurrentUser = createParamDecorator(
   async (data: unknown, context: ExecutionContext) => {
     const ctx = GqlExecutionContext.create(context);
     const user = { ...ctx.getContext().req.user };
-    console.log('user.name');
-    console.log(user);
-    console.log('user.name');
+
     if (!user.hasOwnProperty('name')) {
       try {
         const authUser = await admin

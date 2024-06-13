@@ -25,13 +25,14 @@ export class PostsService {
       .doc();
 
     const createdAt = admin.firestore.FieldValue.serverTimestamp();
+
     try {
       await postRef.set({
         id: postRef.id,
         authorUid: user.uid,
         authorName: user.name,
         createdAt,
-        // authorPhoto: user.photoURL,
+        authorPhoto: user?.picture,
         title,
         description,
         photoURL: photoURL,
